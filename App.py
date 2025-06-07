@@ -1,18 +1,30 @@
 import streamlit as st
 import pandas as pd
 import datetime
+import os
 
 # Function to check login
 def login(username, password):
     return username == "admin" and password == "password"
 
+# Load data from CSV if it exists
+def load_data():
+    if os.path.exists('data.csv'):
+        return pd.read_csv('data.csv')
+    else:
+        return pd.DataFrame(columns=['Date', 'Time', 'App Name', 'Test Result', 'Comments', 'Tested By', 'Failure Reason', 'Common Issues'])
+
+# Save data to CSV
+def save_data(data):
+    data.to_csv('data.csv', index=False)
+
 # Initialize session state
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
-# Initialize session state for data storage
+# Load existing data
 if 'data' not in st.session_state:
-    st.session_state.data = pd.DataFrame(columns=['Date', 'Time', 'App Name', 'Test Result', 'Comments', 'Tested By', 'Failure Reason', 'Common Issues'])
+    st.session_state.data = load_data()
 
 # Main app logic
 if st.session_state.logged_in:
@@ -29,27 +41,28 @@ if st.session_state.logged_in:
             'Common Issues': [common_issues]
         })
         st.session_state.data = pd.concat([st.session_state.data, new_entry], ignore_index=True)
+        save_data(st.session_state.data)
 
-    # Title of the app
+    # Title of the app with enhanced styling
     st.markdown("""
         <style>
             body {
-                background-color: #f0f4f8;
+                background-color: #e9ecef;
                 font-family: 'Arial', sans-serif;
             }
             .title {
                 text-align: center;
                 font-size: 2.5em;
-                color: #4CAF50;
+                color: #007bff;
                 font-weight: bold;
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
             }
             .header {
                 text-align: center;
-                color: #2196F3;
+                color: #343a40;
                 font-size: 1.8em;
                 margin-bottom: 20px;
-                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
             }
             .form-container {
                 background-color: #ffffff;
@@ -65,14 +78,14 @@ if st.session_state.logged_in:
                 margin-top: 20px;
             }
             .dataframe th {
-                background-color: #4CAF50;
+                background-color: #007bff;
                 color: white;
             }
             .dataframe td {
                 background-color: #f9f9f9;
             }
             .button {
-                background-color: #4CAF50;
+                background-color: #007bff;
                 color: white;
                 border: none;
                 border-radius: 5px;
@@ -81,7 +94,7 @@ if st.session_state.logged_in:
                 transition: background-color 0.3s;
             }
             .button:hover {
-                background-color: #45a049;
+                background-color: #0056b3;
             }
         </style>
     """, unsafe_allow_html=True)
@@ -91,8 +104,8 @@ if st.session_state.logged_in:
 
     # Update form
     with st.form(key='test_form', clear_on_submit=True):
-        date = st.date_input('Date', value=datetime.date.today(), disabled=True)
-        time = st.time_input('Time', value=datetime.datetime.now().time(), disabled=False)  # Pre-filled with current time
+        date = st.date_input('Date', value=datetime.date.today(), disabled=False)  # Automatically set to today
+        time = st.time_input('Time', value=datetime.datetime.now().time(), disabled=False)  # Prefetched with current time
         
         # Dropdown for App Name
         app_name = st.selectbox('App Name', ['Rummy Rani', 'Go Rummy', 'Sky Rummy', '52 Cards'])
@@ -145,15 +158,15 @@ else:
             .login-title {
                 text-align: center;
                 font-size: 2em;
-                color: #4CAF50;
+                color: #007bff;
                 font-weight: bold;
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
             }
         </style>
     """, unsafe_allow_html=True)
 
     st.markdown("<h1 class='login-title'>🔐 Login</h1>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align: center; color: #4CAF50;'>Welcome to the Testing Dashboard</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #007bff;'>Welcome to the Testing Dashboard</h2>", unsafe_allow_html=True)
     username = st.text_input("Username", placeholder="Enter your username")
     password = st.text_input("Password", type="password", placeholder="Enter your password")
     
